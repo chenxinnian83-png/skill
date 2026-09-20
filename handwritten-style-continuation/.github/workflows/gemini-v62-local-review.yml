@@ -1,0 +1,108 @@
+name: Local Review
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - gemini-review-v62/inbox/local/current_chunk.txt
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gemini-v62-local-review-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  select-backend:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.select.outputs.backend }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: select
+        shell: pwsh
+        env:
+          OVERRIDE_BACKEND: ${{ vars.REVIEW_BACKEND }}
+        run: |
+          $backend=$env:OVERRIDE_BACKEND
+          if([string]::IsNullOrWhiteSpace($backend)){
+            $config=Get-Content 'gemini-review-v62/review-config.json' -Raw -Encoding UTF8 | ConvertFrom-Json
+            $backend=[string]$config.backend
+          }
+          $backend=$backend.Trim().ToLowerInvariant()
+          if($backend -notin @('local_gemini','custom')){throw ('Unsupported backend: '+$backend)}
+          "backend=$backend" | Out-File $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+  local-gemini:
+    needs: select-backend
+    if: needs.select-backend.outputs.backend == 'local_gemini'
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 90
+    env:
+      REVIEW_BACKEND: local_gemini
+      GEMINI_REVIEW_API_BASE: ${{ vars.GEMINI_REVIEW_API_BASE }}
+      GEMINI_REVIEW_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GEMINI_REVIEW_MODEL: ${{ vars.GEMINI_MODEL }}
+      GEMINI_REVIEW_JSON_MODE: ${{ vars.GEMINI_REVIEW_JSON_MODE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: python -m py_compile .\gemini-review\scripts\review.py
+      - run: python .\gemini-review\scripts\review.py --mode local
+      - name: Publish current result and receipt
+        shell: pwsh
+        run: |
+          if((Test-Path '.git/rebase-merge') -or (Test-Path '.git/rebase-apply')){
+            git rebase --abort 2>$null
+          }
+          git fetch origin main
+          git diff --quiet HEAD origin/main -- gemini-review-v62/inbox/local/current_chunk.txt gemini-review-v62/drafts/current_chapter.txt gemini-review-v62/inbox/context/current_beats.txt gemini-review-v62/reference/mother_text.txt gemini-review-v62/prompts gemini-review-v62/review-config.json gemini-review-v62/protocol.json gemini-review-v62/scripts/review.py
+          if($LASTEXITCODE -ne 0){Write-Host 'Review inputs changed; discarding stale result.'; exit 0}
+          git config user.name review-bot
+          git config user.email actions@users.noreply.github.com
+          git add gemini-review-v62/result/local_review.json gemini-review-v62/result/receipts
+          $changed=git diff --cached --name-only
+          if($changed){
+            git commit -m "Review local result [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          }
+
+  custom:
+    needs: select-backend
+    if: needs.select-backend.outputs.backend == 'custom'
+    runs-on: windows-latest
+    timeout-minutes: 90
+    env:
+      REVIEW_BACKEND: custom
+      CUSTOM_REVIEW_API_BASE: ${{ vars.CUSTOM_REVIEW_API_BASE }}
+      CUSTOM_REVIEW_API_KEY: ${{ secrets.CUSTOM_REVIEW_API_KEY }}
+      CUSTOM_REVIEW_MODEL: ${{ vars.CUSTOM_REVIEW_MODEL }}
+      CUSTOM_REVIEW_JSON_MODE: ${{ vars.CUSTOM_REVIEW_JSON_MODE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: python -m py_compile .\gemini-review\scripts\review.py
+      - run: python .\gemini-review\scripts\review.py --mode local
+      - name: Publish current result and receipt
+        shell: pwsh
+        run: |
+          if((Test-Path '.git/rebase-merge') -or (Test-Path '.git/rebase-apply')){
+            git rebase --abort 2>$null
+          }
+          git fetch origin main
+          git diff --quiet HEAD origin/main -- gemini-review-v62/inbox/local/current_chunk.txt gemini-review-v62/drafts/current_chapter.txt gemini-review-v62/inbox/context/current_beats.txt gemini-review-v62/reference/mother_text.txt gemini-review-v62/prompts gemini-review-v62/review-config.json gemini-review-v62/protocol.json gemini-review-v62/scripts/review.py
+          if($LASTEXITCODE -ne 0){Write-Host 'Review inputs changed; discarding stale result.'; exit 0}
+          git config user.name review-bot
+          git config user.email actions@users.noreply.github.com
+          git add gemini-review-v62/result/local_review.json gemini-review-v62/result/receipts
+          $changed=git diff --cached --name-only
+          if($changed){
+            git commit -m "Review local result [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          }

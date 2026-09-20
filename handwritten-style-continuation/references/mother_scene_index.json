@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "segments": [
+    {
+      "id": "M01-CALL",
+      "start_line": 1,
+      "end_line": 45,
+      "scene": ["遭遇", "说明", "心理"],
+      "pressure": ["陌生", "召唤", "重大选择"],
+      "mechanisms": ["事实先落地", "问题后补", "叙述者直接解释"]
+    },
+    {
+      "id": "M02-ATTACK",
+      "start_line": 49,
+      "end_line": 123,
+      "scene": ["战斗", "遭遇", "怪兽"],
+      "pressure": ["突发", "第一次交手", "危机"],
+      "mechanisms": ["时序中断", "动作后直评", "结果后补原因"]
+    },
+    {
+      "id": "M03-BATTLE",
+      "start_line": 125,
+      "end_line": 219,
+      "scene": ["战斗", "变身", "群像"],
+      "pressure": ["危机", "惊讶", "局势变化"],
+      "mechanisms": ["快慢变速", "原词回勾", "原因倒补"]
+    },
+    {
+      "id": "M04-DIALOGUE",
+      "start_line": 221,
+      "end_line": 363,
+      "scene": ["对话", "说明", "陌生人交互"],
+      "pressure": ["试探", "隐瞒", "务实决定"],
+      "mechanisms": ["朴素对白", "动机后补", "问题复述"]
+    },
+    {
+      "id": "M05-GRIEF",
+      "start_line": 365,
+      "end_line": 417,
+      "scene": ["悲情", "搜寻", "群像"],
+      "pressure": ["失踪", "悲伤", "重逢"],
+      "mechanisms": ["具象回环", "判断后撤回", "语速骤变"]
+    },
+    {
+      "id": "M06-ARRIVAL",
+      "start_line": 419,
+      "end_line": 493,
+      "scene": ["生活", "赶路", "借宿"],
+      "pressure": ["陌生", "落脚", "轻微尴尬"],
+      "mechanisms": ["环境后接现实需求", "普通常理", "生活动作"]
+    },
+    {
+      "id": "M07-DOMESTIC",
+      "start_line": 495,
+      "end_line": 591,
+      "scene": ["生活", "对话", "回忆"],
+      "pressure": ["放松", "怀念", "家常"],
+      "mechanisms": ["家常细节", "触景回想", "直接情绪"]
+    }
+  ]
+}
+

@@ -1,0 +1,13 @@
+interface:
+  display_name: 手搓文风续写
+  short_description: 用母版片段检索与双阶段外审续写中文小说
+  default_prompt: 使用手搓文风续写技能，依据我的前文、设定和细纲续写下一章。
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

@@ -1,0 +1,10 @@
+{
+  "protocol_version": "handwritten-v620",
+  "local_batch_min_hanzi": 1200,
+  "local_batch_target_hanzi": 1500,
+  "local_batch_max_hanzi": 1800,
+  "local_tail_chars": 1200,
+  "review_temperature": 0,
+  "max_output_tokens": 16384,
+  "max_attempts": 5
+}

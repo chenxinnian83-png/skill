@@ -1,0 +1,8 @@
+generation_packet.md
+current_unit.json
+chapter_state.json
+previous_tail.txt
+candidate-*.txt
+final_chapter.txt
+__pycache__/
+
